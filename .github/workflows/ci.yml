@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  #push:
+  #  branches: [ main, master, feature/** ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: public.ecr.aws/docker/library/gradle:jdk21
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: batchdb
+          POSTGRES_USER: batchuser
+          POSTGRES_PASSWORD: batchpass
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests
+        run: gradle test --no-daemon
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/batchdb
+          SPRING_DATASOURCE_USERNAME: batchuser
+          SPRING_DATASOURCE_PASSWORD: batchpass
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: build/reports/tests/test/
