@@ -4,10 +4,6 @@ on:
   pull_request:
     branches: [ main, master ]
 
-env:
-  AWS_REGION: ap-northeast-1
-  ECR_REPOSITORY: amateras-prod-spring-batch-app-v1
-
 permissions:
   id-token: write
   contents: read
@@ -26,7 +22,7 @@ jobs:
     needs: test
     uses: ./.github/workflows/build.yml
     with:
-      ecr_repository: ${{ env.ECR_REPOSITORY }}
+      ecr_repository: amateras-prod-spring-batch-app-v1
 
   ###############################################################################
   # ECR へのプッシュ
@@ -35,7 +31,7 @@ jobs:
     needs: build
     uses: ./.github/workflows/push.yml
     with:
-      aws_region: ${{ env.AWS_REGION }}
-      ecr_repository: ${{ env.ECR_REPOSITORY }}
+      aws_region: ap-northeast-1
+      ecr_repository: amateras-prod-spring-batch-app-v1
     secrets:
       aws_deploy_role_arn: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
