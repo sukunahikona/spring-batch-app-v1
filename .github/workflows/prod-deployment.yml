@@ -1,0 +1,41 @@
+name: Prod Deployment
+
+on:
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_REPOSITORY: amateras-prod-spring-batch-app-v1
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  ###############################################################################
+  # ユニットテスト
+  ###############################################################################
+  test:
+    uses: ./.github/workflows/unit-test.yml
+
+  ###############################################################################
+  # Docker イメージのビルド
+  ###############################################################################
+  build:
+    needs: test
+    uses: ./.github/workflows/build.yml
+    with:
+      ecr_repository: ${{ env.ECR_REPOSITORY }}
+
+  ###############################################################################
+  # ECR へのプッシュ
+  ###############################################################################
+  push:
+    needs: build
+    uses: ./.github/workflows/push.yml
+    with:
+      aws_region: ${{ env.AWS_REGION }}
+      ecr_repository: ${{ env.ECR_REPOSITORY }}
+    secrets:
+      aws_deploy_role_arn: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
