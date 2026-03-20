@@ -1,10 +1,7 @@
-name: CI
+name: Unit Test
 
 on:
-  #push:
-  #  branches: [ main, master, feature/** ]
-  pull_request:
-    branches: [ main, master ]
+  workflow_call:
 
 jobs:
   test:
