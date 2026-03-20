@@ -3,6 +3,7 @@ name: Prod Deployment
 on:
   pull_request:
     branches: [ main, master ]
+  # 手動実行  
   workflow_dispatch:
 
 permissions:
